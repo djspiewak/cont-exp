@@ -2,6 +2,8 @@ organization := "com.codecommit"
 
 name := "cont-exp"
 
+libraryDependencies += "org.scalaz" %% "scalaz-effect" % "7.2.10"
+
 /*
  * Compatibility version.  Use this to declare what version with
  * which `master` remains in compatibility.  This is literally

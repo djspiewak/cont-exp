@@ -3,6 +3,8 @@ package cont
 sealed trait Cont[R, A] {
   import Cont._
 
+  def map[B](f: A => B): Cont[R, B] = flatMap(a => Cont.pure(f(a)))
+
   def flatMap[B](f: A => Cont[R, B]): Cont[R, B] = Bind(this, f)
 
   def mapCont(f: R => R): Cont[R, A] = this match {
