@@ -7,7 +7,7 @@ package object cont {
 
   implicit final class TaskSyntax[A](val self: Task[A]) extends AnyVal {
     def flatMap[B](f: A => Task[B]): Task[B] = Task.flatMap(self)(f)
-    def pzip[B](that: Task[B])(implicit E: ExecutorService): Task[(A, B)] = Task.pzip(self, that)
+    def both[B](that: Task[B])(implicit E: ExecutorService): Task[(A, B)] = Task.both(self, that)
   }
 
   implicit final class ESSyntax(val executor: ExecutorService) extends AnyVal {

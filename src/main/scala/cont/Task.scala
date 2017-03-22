@@ -16,7 +16,7 @@ object Task {
 
   def flatMap[A, B](t: Task[A])(f: A => Task[B]): Task[B] = t.flatMap(f)
 
-  def pzip[A, B](left: Task[A], right: Task[B])(implicit E: ExecutorService): Task[(A, B)] = {
+  def both[A, B](left: Task[A], right: Task[B])(implicit E: ExecutorService): Task[(A, B)] = {
     Cont { cb =>
       IO {
         @volatile var lres: Option[A] = None
