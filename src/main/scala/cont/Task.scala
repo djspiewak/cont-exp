@@ -14,7 +14,8 @@ object Task {
 
   def async[A](f: (A => IO[Unit]) => IO[Unit]): Task[A] = Cont(f)
 
-  def flatMap[A, B](t: Task[A])(f: A => Task[B]): Task[B] = t.flatMap(f)
+  // this is basically the cleverest thing ever; thanks, @puffnfresh!
+  def liftIO[A](ioa: IO[A]): Task[A] = Cont(ioa.flatMap)
 
   def both[A, B](left: Task[A], right: Task[B])(implicit E: ExecutorService): Task[(A, B)] = {
     Cont { cb =>
