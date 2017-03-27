@@ -16,6 +16,12 @@ object Task {
 
   def async[A](f: (Throwable \/ A => IO[Unit]) => IO[Unit]): Task[A] = ContT(f)
 
+  // should not be used on anything that does NOT bounce the stack
+  // in other words, this is only appropriate for things like
+  // thread pools, async IO, etc
+  def unsafeAsync[A](f: (Throwable \/ A => Unit) => Unit): Task[A] =
+    async(cb => IO(f(ta => cb(ta).unsafePerformIO())))
+
   def liftIO[A](ioa: IO[A]): Task[A] = ContT.liftM(ioa.catchLeft)
 
   def both[A, B](left: Task[A], right: Task[B])(implicit E: ExecutorService): Task[(A, B)] = {
