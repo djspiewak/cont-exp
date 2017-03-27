@@ -8,19 +8,18 @@ import java.util.concurrent.ExecutorService
 
 object Task {
 
-  def fail[A](t: Throwable): Task[A] = Cont.pure(-\/(t))
+  def fail[A](t: Throwable): Task[A] = ContT.pure(-\/(t))
 
-  def now[A](a: A): Task[A] = Cont.pure(\/-(a))
+  def now[A](a: A): Task[A] = ContT.pure(\/-(a))
 
-  def delay[A](body: => A): Task[A] = Cont(_(\/.fromTryCatchNonFatal(body)))
+  def delay[A](body: => A): Task[A] = liftIO(IO(body))
 
-  def async[A](f: (Throwable \/ A => IO[Unit]) => IO[Unit]): Task[A] = Cont(f)
+  def async[A](f: (Throwable \/ A => IO[Unit]) => IO[Unit]): Task[A] = ContT(f)
 
-  // this is basically the cleverest thing ever; thanks, @puffnfresh!
-  def liftIO[A](ioa: IO[A]): Task[A] = Cont(ioa.catchLeft.flatMap)
+  def liftIO[A](ioa: IO[A]): Task[A] = ContT.liftM(ioa.catchLeft)
 
   def both[A, B](left: Task[A], right: Task[B])(implicit E: ExecutorService): Task[(A, B)] = {
-    Cont { cb =>
+    ContT { cb =>
       IO {
         @volatile var failure: Option[Throwable] = None
         @volatile var lres: Option[A] = None
